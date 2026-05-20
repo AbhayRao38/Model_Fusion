@@ -2,8 +2,10 @@ services:
   # 1. Fusion Orchestrator (Backend API)
   - type: web
     name: mci-backend-fusion
-    env: docker
+    env: python
     repo: https://github.com/AbhayRao38/Model_Fusion.git
+    buildCommand: "pip install -r requirements.txt && pip install gunicorn"
+    startCommand: "gunicorn -w 1 -b 0.0.0.0:$PORT main:app"
     plan: free
     envVars:
       - key: FACE_HOST
