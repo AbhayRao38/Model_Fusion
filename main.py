@@ -50,6 +50,26 @@ def _fallback_result(modality: str) -> Dict:
         'emotion_labels': labels,
     }
 
+def normalize_emotion_label(label: str) -> str:
+    lbl = label.lower().strip()
+    mapping = {
+        'anger': 'angry',
+        'angry': 'angry',
+        'sadness': 'sad',
+        'sad': 'sad',
+        'happiness': 'happy',
+        'happy': 'happy',
+        'fearful': 'fear',
+        'fear': 'fear',
+        'surprised': 'surprise',
+        'surprise': 'surprise',
+        'neutral': 'neutral',
+        'disgust': 'disgust',
+        'contempt': 'contempt',
+        'calm': 'neutral'
+    }
+    return mapping.get(lbl, lbl)
+
 class SimpleFusionSystem:
     """Simple fusion system for combining multi-modal predictions"""
     
@@ -85,13 +105,27 @@ class SimpleFusionSystem:
                     if isinstance(emo_probs, list) and isinstance(emo_labels, list) and len(emo_probs) == len(emo_labels):
                         mapping = self.emotion_to_mci.get(modality, {}) or {}
                         if mapping:
-                            # Compute expected MCI probability given emotion mapping
-                            label_to_prob = {lab: float(p) for lab, p in zip(emo_labels, emo_probs)}
+                            # Normalize mapping keys
+                            normalized_mapping = {normalize_emotion_label(k): float(v) for k, v in mapping.items()}
+                            
+                            # Normalize emotion labels from model output
+                            label_to_prob = {}
+                            for lab, p in zip(emo_labels, emo_probs):
+                                norm_lab = normalize_emotion_label(lab)
+                                label_to_prob[norm_lab] = label_to_prob.get(norm_lab, 0.0) + float(p)
+                                
                             mci_prob = 0.0
-                            for lab, weight in mapping.items():
-                                if lab in label_to_prob:
-                                    mci_prob += float(weight) * float(label_to_prob[lab])
-                            confidence = float(result.get('confidence', max(0.5, max(emo_probs))))
+                            matched_count = 0
+                            for lab, prob in label_to_prob.items():
+                                if lab in normalized_mapping:
+                                    mci_prob += normalized_mapping[lab] * prob
+                                    matched_count += 1
+                            
+                            if matched_count > 0:
+                                confidence = float(result.get('confidence', max(0.5, max(emo_probs))))
+                            else:
+                                details[modality] = 'skipped (no matching emotion labels after normalization)'
+                                continue
                         else:
                             # No mapping configured -> skip contributing to MCI
                             details[modality] = 'skipped (no emotion->MCI mapping)'
