@@ -19,6 +19,7 @@ services:
   - type: web
     name: mci-frontend
     runtime: static
+    rootDir: frontend
     repo: https://github.com/AbhayRao38/Model_Fusion.git
     buildCommand: ""
-    staticPublishPath: frontend
+    staticPublishPath: .
