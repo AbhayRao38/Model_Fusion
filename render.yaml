@@ -21,4 +21,4 @@ services:
     runtime: static
     repo: https://github.com/AbhayRao38/Model_Fusion.git
     buildCommand: ""
-    publishPath: frontend
+    staticPublishPath: frontend
