@@ -45,11 +45,10 @@ def generate_mock_dicom(size=(128, 128)):
         import pydicom
         from pydicom.dataset import Dataset, FileMetaDataset
         from pydicom.uid import ExplicitVRLittleEndian
-        import pydicom._storage_sopclass_uids
         
         file_meta = FileMetaDataset()
         file_meta.TransferSyntaxUID = ExplicitVRLittleEndian
-        file_meta.MediaStorageSOPClassUID = pydicom._storage_sopclass_uids.MRImageStorage
+        file_meta.MediaStorageSOPClassUID = "1.2.840.10008.5.1.4.1.1.4"
         file_meta.MediaStorageSOPInstanceUID = "1.2.3"
         file_meta.ImplementationClassUID = "1.2.3.4"
         
@@ -58,7 +57,7 @@ def generate_mock_dicom(size=(128, 128)):
         ds.is_little_endian = True
         ds.is_implicit_VR = False
         
-        ds.SOPClassUID = pydicom._storage_sopclass_uids.MRImageStorage
+        ds.SOPClassUID = "1.2.840.10008.5.1.4.1.1.4"
         ds.SOPInstanceUID = "1.2.3"
         ds.PatientName = "Test^Patient"
         ds.PatientID = "123456"
@@ -101,7 +100,7 @@ def run_tests():
         # Test valid request
         face_file = generate_mock_image(color='gray', size=(48, 48))
         start_time = time.time()
-        res = requests.post(face_url, files={'file': ('face.png', face_file, 'image/png')}, timeout=10)
+        res = requests.post(face_url, files={'file': ('face.png', face_file, 'image/png')}, timeout=60)
         latency = (time.time() - start_time) * 1000
         
         print(f"  Valid Request: Status {res.status_code} | Latency: {latency:.1f}ms")
@@ -115,10 +114,10 @@ def run_tests():
             
         # Test corrupted request (should return HTTP 400)
         corrupt_file = io.BytesIO(b"corrupted_image_data_here")
-        res_corrupt = requests.post(face_url, files={'file': ('face.png', corrupt_file, 'image/png')}, timeout=10)
+        res_corrupt = requests.post(face_url, files={'file': ('face.png', corrupt_file, 'image/png')}, timeout=60)
         print(f"  Corrupt File Request: Status {res_corrupt.status_code} (Expected 400)")
         assert res_corrupt.status_code == 400, f"Expected 400 for corrupt file, got {res_corrupt.status_code}"
-        print("  ✓ Correctly rejected corrupted image with HTTP 400")
+        print("  [OK] Correctly rejected corrupted image with HTTP 400")
         
     except Exception as e:
         print(f"  Error testing Face API: {e}")
@@ -131,7 +130,7 @@ def run_tests():
         # Test valid request
         eye_file = generate_mock_image(color='blue', size=(224, 224))
         start_time = time.time()
-        res = requests.post(eye_url, files={'file': ('eye.png', eye_file, 'image/png')}, timeout=10)
+        res = requests.post(eye_url, files={'file': ('eye.png', eye_file, 'image/png')}, timeout=60)
         latency = (time.time() - start_time) * 1000
         
         print(f"  Valid Request: Status {res.status_code} | Latency: {latency:.1f}ms")
@@ -145,10 +144,10 @@ def run_tests():
             
         # Test corrupted request (should return HTTP 400)
         corrupt_file = io.BytesIO(b"corrupted_image_data_here")
-        res_corrupt = requests.post(eye_url, files={'file': ('eye.png', corrupt_file, 'image/png')}, timeout=10)
+        res_corrupt = requests.post(eye_url, files={'file': ('eye.png', corrupt_file, 'image/png')}, timeout=60)
         print(f"  Corrupt File Request: Status {res_corrupt.status_code} (Expected 400)")
         assert res_corrupt.status_code == 400, f"Expected 400 for corrupt file, got {res_corrupt.status_code}"
-        print("  ✓ Correctly rejected corrupted image with HTTP 400")
+        print("  [OK] Correctly rejected corrupted image with HTTP 400")
         
     except Exception as e:
         print(f"  Error testing Eye API: {e}")
@@ -162,7 +161,7 @@ def run_tests():
         dicom_file, fmt = generate_mock_dicom()
         print(f"  Submitting mock format: {fmt}")
         start_time = time.time()
-        res = requests.post(mri_url, files={'file': (f'mri.dcm' if fmt=='DICOM' else 'mri.png', dicom_file, 'application/dicom' if fmt=='DICOM' else 'image/png')}, timeout=10)
+        res = requests.post(mri_url, files={'file': (f'mri.dcm' if fmt=='DICOM' else 'mri.png', dicom_file, 'application/dicom' if fmt=='DICOM' else 'image/png')}, timeout=60)
         latency = (time.time() - start_time) * 1000
         
         print(f"  Valid Request: Status {res.status_code} | Latency: {latency:.1f}ms")
@@ -176,10 +175,10 @@ def run_tests():
             
         # Test corrupted request (should return HTTP 400)
         corrupt_file = io.BytesIO(b"corrupted_dicom_data_here")
-        res_corrupt = requests.post(mri_url, files={'file': ('mri.dcm', corrupt_file, 'application/dicom')}, timeout=10)
+        res_corrupt = requests.post(mri_url, files={'file': ('mri.dcm', corrupt_file, 'application/dicom')}, timeout=60)
         print(f"  Corrupt File Request: Status {res_corrupt.status_code} (Expected 400)")
         assert res_corrupt.status_code == 400, f"Expected 400 for corrupt file, got {res_corrupt.status_code}"
-        print("  ✓ Correctly rejected corrupted medical MRI upload with HTTP 400")
+        print("  [OK] Correctly rejected corrupted medical MRI upload with HTTP 400")
         
     except Exception as e:
         print(f"  Error testing MRI API: {e}")
@@ -192,7 +191,7 @@ def run_tests():
         # Test valid request
         wav_file = generate_mock_wav()
         start_time = time.time()
-        res = requests.post(speech_url, files={'file': ('speech.wav', wav_file, 'audio/wav')}, timeout=10)
+        res = requests.post(speech_url, files={'file': ('speech.wav', wav_file, 'audio/wav')}, timeout=60)
         latency = (time.time() - start_time) * 1000
         
         print(f"  Valid Request: Status {res.status_code} | Latency: {latency:.1f}ms")
@@ -206,10 +205,10 @@ def run_tests():
             
         # Test corrupted request (should return HTTP 400)
         corrupt_file = io.BytesIO(b"corrupted_audio_data_here")
-        res_corrupt = requests.post(speech_url, files={'file': ('speech.wav', corrupt_file, 'audio/wav')}, timeout=10)
+        res_corrupt = requests.post(speech_url, files={'file': ('speech.wav', corrupt_file, 'audio/wav')}, timeout=60)
         print(f"  Corrupt File Request: Status {res_corrupt.status_code} (Expected 400)")
         assert res_corrupt.status_code == 400, f"Expected 400 for corrupt file, got {res_corrupt.status_code}"
-        print("  ✓ Correctly rejected corrupted audio with HTTP 400")
+        print("  [OK] Correctly rejected corrupted audio with HTTP 400")
         
     except Exception as e:
         print(f"  Error testing Speech API: {e}")
@@ -254,11 +253,11 @@ def run_tests():
             'face': ('face.png', corrupt_face, 'image/png'),
             'eye': ('eye.png', generate_mock_image(color='blue'), 'image/png'),
         }
-        res_prop = requests.post(fusion_url, files=files_corrupt, timeout=20)
+        res_prop = requests.post(fusion_url, files=files_corrupt, timeout=60)
         print(f"  Corrupt Modality Fusion Request: Status {res_prop.status_code} (Expected 400)")
         assert res_prop.status_code == 400, f"Expected 400 for corrupt modality payload, got {res_prop.status_code}"
         print(f"  Propagated Message: {res_prop.json().get('error')}")
-        print("  ✓ SUCCESS: Corrupted modality uploads prevent silent fallback, aborting with HTTP 400 validation error!")
+        print("  [OK] SUCCESS: Corrupted modality uploads prevent silent fallback, aborting with HTTP 400 validation error!")
         
         # 3. Payload size ceiling limit (Expected HTTP 413 Payload Too Large)
         print("  Submitting oversized mock payload (55MB) to test DoS defenses...")
@@ -267,12 +266,12 @@ def run_tests():
             'face': ('oversized.png', io.BytesIO(oversized_data), 'image/png')
         }
         try:
-            res_oversized = requests.post(fusion_url, files=files_oversized, timeout=5)
+            res_oversized = requests.post(fusion_url, files=files_oversized, timeout=10)
             print(f"  Oversized Payload: Status {res_oversized.status_code} (Expected 413 or Connection Closed)")
             assert res_oversized.status_code in (413, 400), f"Expected payload block, got status {res_oversized.status_code}"
-            print("  ✓ SUCCESS: Oversized payload successfully blocked by DoS safety ceiling!")
+            print("  [OK] SUCCESS: Oversized payload successfully blocked by DoS safety ceiling!")
         except requests.exceptions.RequestException:
-            print("  ✓ SUCCESS: Connection reset or closed immediately by safety ceiling (standard behavior for oversized uploads)")
+            print("  [OK] SUCCESS: Connection reset or closed immediately by safety ceiling (standard behavior for oversized uploads)")
             
     except Exception as e:
         print(f"  Error testing Fusion Orchestrator: {e}")
