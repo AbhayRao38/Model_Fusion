@@ -12,6 +12,10 @@ app = Flask(__name__)
 CORS(app)
 logging.basicConfig(level=logging.INFO)
 
+# Restrict upload payloads to 50MB to defend the microservice container from Denial-of-Service (DoS) memory exhaustion
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
+
+
 # Config
 def load_config():
     repo_root = Path(__file__).resolve().parent
@@ -229,6 +233,13 @@ def analyze_patient():
                     if result.get('success'):
                         individual_results[modality] = result
                     else:
+                        if result.get('error_type') == 'input_validation':
+                            # Clinical safety: Propagate validation failures immediately without fallback
+                            logging.error(f"Validation failure in {modality} modality: {result.get('error')}")
+                            return jsonify({
+                                'success': False,
+                                'error': f"Validation failure in {modality} modality: {result.get('error')}"
+                            }), result.get('status_code', 400)
                         individual_results[modality] = {'success': False, 'error': result.get('error', 'Unknown error')}
         
         # Require at least 2 modalities attempted and at least 1 contributing to fusion
@@ -278,8 +289,19 @@ def call_model_api(modality: str, file) -> Dict:
             data = response.json()
         except Exception:
             data = {'success': False, 'error': f'Non-JSON response: {response.text[:200]}'}
+            
         if response.status_code == 200 and data.get('success', False):
             return data
+            
+        if response.status_code in (400, 415):
+            # Input validation failure - return explicit error structure to propagate back to client
+            return {
+                'success': False, 
+                'error_type': 'input_validation', 
+                'error': data.get('error', 'Invalid file format or corrupted payload'), 
+                'status_code': response.status_code
+            }
+            
         logging.warning(f'{modality} API unavailable or failed; using fallback result')
         return _fallback_result(modality)
                     
