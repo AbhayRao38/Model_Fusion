@@ -379,7 +379,11 @@ class MCIDiagnosticSystem {
       <div class="clinical-insights">
         <h4>Clinical Insights:</h4>
         <ul>
-          ${analysis.clinical_insights.map(insight => `<li>${insight}</li>`).join("")}
+          ${Array.isArray(analysis.clinical_insights)
+            ? analysis.clinical_insights.map(insight => `<li>${insight}</li>`).join("")
+            : typeof analysis.clinical_insights === 'object' && analysis.clinical_insights !== null
+              ? Object.entries(analysis.clinical_insights).map(([key, val]) => `<li><strong>${key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}:</strong> ${val}</li>`).join("")
+              : `<li>${analysis.clinical_insights || "No clinical insights available."}</li>`}
         </ul>
       </div>
       <div class="individual-results">
@@ -576,7 +580,11 @@ function printReport() {
       <div class="section">
         <h2>Clinical Insights</h2>
         <ul>
-          ${analysis.clinical_insights.map(insight => `<li>${insight}</li>`).join("")}
+          ${Array.isArray(analysis.clinical_insights)
+            ? analysis.clinical_insights.map(insight => `<li>${insight}</li>`).join("")
+            : typeof analysis.clinical_insights === 'object' && analysis.clinical_insights !== null
+              ? Object.entries(analysis.clinical_insights).map(([key, val]) => `<li><strong>${key.charAt(0).toUpperCase() + key.slice(1).replace(/_/g, ' ')}:</strong> ${val}</li>`).join("")
+              : `<li>${analysis.clinical_insights || "No clinical insights available."}</li>`}
         </ul>
       </div>
       
