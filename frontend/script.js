@@ -102,25 +102,17 @@ class MCIDiagnosticSystem {
 
   validateFile(file, type) {
     const imageTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/tiff", "image/bmp"]
-    const imageExts = [".jpg", ".jpeg", ".png", ".gif", ".tiff", ".tif", ".bmp"]
-    
     const audioTypes = ["audio/wav", "audio/mp3", "audio/mpeg", "audio/ogg", "audio/m4a", "audio/aac"]
-    const audioExts = [".wav", ".mp3", ".mpeg", ".ogg", ".m4a", ".aac"]
-    
     const dicomTypes = ["application/dicom"]
-    const dicomExts = [".dcm"]
-
-    const mime = (file.type || "").toLowerCase()
-    const name = (file.name || "").toLowerCase()
 
     switch (type) {
       case "face":
       case "eye":
-        return imageTypes.includes(mime) || imageExts.some(ext => name.endsWith(ext))
+        return imageTypes.includes(file.type)
       case "mri":
-        return imageTypes.includes(mime) || dicomTypes.includes(mime) || imageExts.some(ext => name.endsWith(ext)) || dicomExts.some(ext => name.endsWith(ext))
+        return imageTypes.includes(file.type) || dicomTypes.includes(file.type) || file.name.toLowerCase().endsWith('.dcm')
       case "speech":
-        return audioTypes.includes(mime) || audioExts.some(ext => name.endsWith(ext))
+        return audioTypes.includes(file.type)
       default:
         return false
     }
@@ -554,8 +546,8 @@ function printReport() {
           padding: 10px 20px; 
           border-radius: 20px; 
           font-weight: bold;
-          ${(analysis.risk_class && analysis.risk_class.includes('high')) ? 'background: #fee; color: #c00;' : 
-            (analysis.risk_class && analysis.risk_class.includes('moderate')) ? 'background: #ffd; color: #a60;' : 
+          ${analysis.risk_class.includes('high') ? 'background: #fee; color: #c00;' : 
+            analysis.risk_class.includes('moderate') ? 'background: #ffd; color: #a60;' : 
             'background: #efe; color: #060;'}
         }
         .disclaimer { 
