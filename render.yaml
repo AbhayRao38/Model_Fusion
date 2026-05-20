@@ -1,0 +1,64 @@
+services:
+  # 1. Face Service
+  - type: web
+    name: mci-backend-face
+    env: docker
+    repo: https://github.com/AbhayRao38/Model_Face.git
+    plan: free
+
+  # 2. Eye Service
+  - type: web
+    name: mci-backend-eye
+    env: docker
+    repo: https://github.com/AbhayRao38/Model_Eye.git
+    plan: free
+
+  # 3. Speech Service
+  - type: web
+    name: mci-backend-speech
+    env: docker
+    repo: https://github.com/AbhayRao38/Model_Speech.git
+    plan: free
+
+  # 4. MRI Service
+  - type: web
+    name: mci-backend-mri
+    env: docker
+    repo: https://github.com/AbhayRao38/Model_MRI.git
+    plan: free
+
+  # 5. Fusion Orchestrator (Backend API)
+  - type: web
+    name: mci-backend-fusion
+    env: docker
+    repo: https://github.com/AbhayRao38/Model_Fusion.git
+    plan: free
+    envVars:
+      - key: FACE_HOST
+        fromService:
+          name: mci-backend-face
+          type: web
+          property: host
+      - key: EYE_HOST
+        fromService:
+          name: mci-backend-eye
+          type: web
+          property: host
+      - key: SPEECH_HOST
+        fromService:
+          name: mci-backend-speech
+          type: web
+          property: host
+      - key: MRI_HOST
+        fromService:
+          name: mci-backend-mri
+          type: web
+          property: host
+
+  # 6. Static HTML/JS Frontend
+  - type: web
+    name: mci-frontend
+    env: static
+    repo: https://github.com/AbhayRao38/Model_Fusion.git
+    buildCommand: ""
+    publishPath: frontend
