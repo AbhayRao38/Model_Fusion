@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCI Diagnostic System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="logo-icon">MCI</div>
+                    <h1>MCI Diagnostic System</h1>
+                </div>
+                <div class="theme-controls">
+                    <button class="theme-btn" id="lightTheme">Light</button>
+                    <div class="theme-toggle" id="themeToggle">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <button class="theme-btn" id="darkTheme">Dark</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Screen -->
+            <div class="screen active" id="uploadScreen">
+                <div class="screen-header">
+                    <p class="subtitle">Advanced multimodal AI system for early detection of Mild Cognitive Impairment. Upload patient data across multiple modalities for comprehensive analysis.</p>
+                </div>
+
+                <div class="upload-grid">
+                    <!-- Facial Expression Image -->
+                    <div class="upload-card" data-type="face">
+                        <div class="card-header">
+                            <div class="card-icon">FACE</div>
+                            <div class="card-info">
+                                <h3>Facial Expression Image</h3>
+                                <p>Upload a clear frontal face image</p>
+                            </div>
+                        </div>
+                        <div class="upload-area" id="faceUpload">
+                            <div class="upload-icon">UPLOAD</div>
+                            <p class="upload-text">Click to upload or drag and drop</p>
+                            <p class="file-types">JPG, PNG, DICOM</p>
+                            <input type="file" id="faceInput" accept="image/*" hidden>
+                            <div class="file-preview" id="facePreview"></div>
+                        </div>
+                    </div>
+
+                    <!-- Eye Tracking Image -->
+                    <div class="upload-card" data-type="eye">
+                        <div class="card-header">
+                            <div class="card-icon">EYE</div>
+                            <div class="card-info">
+                                <h3>Eye Tracking Image</h3>
+                                <p>Upload an eye-focused image</p>
+                            </div>
+                        </div>
+                        <div class="upload-area" id="eyeUpload">
+                            <div class="upload-icon">UPLOAD</div>
+                            <p class="upload-text">Click to upload or drag and drop</p>
+                            <p class="file-types">JPG, PNG, DICOM</p>
+                            <input type="file" id="eyeInput" accept="image/*" hidden>
+                            <div class="file-preview" id="eyePreview"></div>
+                        </div>
+                    </div>
+
+                    <!-- MRI Scan -->
+                    <div class="upload-card" data-type="mri">
+                        <div class="card-header">
+                            <div class="card-icon">MRI</div>
+                            <div class="card-info">
+                                <h3>MRI Scan</h3>
+                                <p>Upload brain MRI scan (DICOM or image format)</p>
+                            </div>
+                        </div>
+                        <div class="upload-area" id="mriUpload">
+                            <div class="upload-icon">UPLOAD</div>
+                            <p class="upload-text">Click to upload or drag and drop</p>
+                            <p class="file-types">JPG, PNG, DICOM</p>
+                            <input type="file" id="mriInput" accept="image/*,.dcm" hidden>
+                            <div class="file-preview" id="mriPreview"></div>
+                        </div>
+                    </div>
+
+                    <!-- Speech Sample -->
+                    <div class="upload-card" data-type="speech">
+                        <div class="card-header">
+                            <div class="card-icon">AUDIO</div>
+                            <div class="card-info">
+                                <h3>Speech Sample</h3>
+                                <p>Upload audio recording (30-60 seconds)</p>
+                            </div>
+                        </div>
+                        <div class="upload-area" id="speechUpload">
+                            <div class="upload-icon">UPLOAD</div>
+                            <p class="upload-text">Click to upload or drag and drop</p>
+                            <p class="file-types">MP3, WAV, M4A</p>
+                            <input type="file" id="speechInput" accept="audio/*" hidden>
+                            <div class="file-preview" id="speechPreview"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="analysis-section">
+                    <button class="start-analysis-btn" id="startAnalysisBtn" disabled>
+                        <span class="btn-icon">ANALYZE</span>
+                        Start MCI Analysis
+                    </button>
+                    <p class="upload-requirement" id="uploadRequirement">Please upload at least 2 modalities to begin analysis</p>
+                </div>
+
+                <!-- Medical Disclaimer Modal -->
+                <div class="modal-overlay" id="disclaimerModal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h2>Important Medical Disclaimer</h2>
+                        </div>
+                        <div class="modal-body">
+                            <p><strong>This AI system is NOT a substitute for professional medical advice, diagnosis, or treatment.</strong></p>
+                            
+                            <p>This screening tool is designed for research and preliminary assessment purposes only. The results provided by this system:</p>
+                            
+                            <ul>
+                                <li>Are not intended for definitive medical diagnosis</li>
+                                <li>Should not replace consultation with qualified healthcare professionals</li>
+                                <li>May produce false positives or false negatives</li>
+                                <li>Require validation by licensed medical practitioners</li>
+                            </ul>
+                            
+                            <p><strong>SEEK IMMEDIATE MEDICAL ATTENTION</strong> if experiencing concerning cognitive changes.</p>
+                            
+                            <div class="consent-section">
+                                <label class="consent-checkbox">
+                                    <input type="checkbox" id="medicalConsent" required>
+                                    <span class="checkmark"></span>
+                                    I understand this AI system is not a substitute for professional medical care
+                                </label>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-secondary" onclick="closeDisclaimer()">Cancel</button>
+                            <button class="btn-primary" id="acceptDisclaimer" disabled>Accept & Continue</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Processing Screen -->
+            <div class="screen" id="processingScreen">
+                <div class="processing-container">
+                    <div class="processing-header">
+                        <div class="processing-spinner"></div>
+                        <h2>Processing Analysis</h2>
+                        <p>Our AI system is analyzing your data across multiple modalities</p>
+                    </div>
+
+                    <div class="progress-section">
+                        <div class="progress-header">
+                            <span>Overall Progress</span>
+                            <span class="progress-percentage" id="overallProgress">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                    </div>
+
+                    <div class="processing-steps">
+                        <div class="step" id="step1">
+                            <div class="step-indicator"></div>
+                            <div class="step-content">
+                                <h4>Analyzing facial expressions</h4>
+                                <p>Processing facial emotion patterns</p>
+                            </div>
+                            <div class="step-spinner"></div>
+                        </div>
+
+                        <div class="step" id="step2">
+                            <div class="step-indicator"></div>
+                            <div class="step-content">
+                                <h4>Evaluating eye tracking data</h4>
+                                <p>Analyzing attention and cognitive patterns</p>
+                            </div>
+                            <div class="step-spinner"></div>
+                        </div>
+
+                        <div class="step" id="step3">
+                            <div class="step-indicator"></div>
+                            <div class="step-content">
+                                <h4>Processing MRI scan</h4>
+                                <p>Detecting structural brain changes</p>
+                            </div>
+                            <div class="step-spinner"></div>
+                        </div>
+
+                        <div class="step" id="step4">
+                            <div class="step-indicator"></div>
+                            <div class="step-content">
+                                <h4>Analyzing speech patterns</h4>
+                                <p>Evaluating speech emotion and cognitive markers</p>
+                            </div>
+                            <div class="step-spinner"></div>
+                        </div>
+
+                        <div class="step" id="step5">
+                            <div class="step-indicator"></div>
+                            <div class="step-content">
+                                <h4>Multimodal fusion</h4>
+                                <p>Combining all modalities with confidence weighting</p>
+                            </div>
+                            <div class="step-spinner"></div>
+                        </div>
+
+                        <div class="step" id="step6">
+                            <div class="step-indicator"></div>
+                            <div class="step-content">
+                                <h4>Generating clinical report</h4>
+                                <p>Preparing diagnostic recommendations</p>
+                            </div>
+                            <div class="step-spinner"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div class="screen" id="resultsScreen">
+                <div class="results-container">
+                    <div class="results-header">
+                        <div class="results-icon">RESULTS</div>
+                        <h2>Diagnostic Results</h2>
+                    </div>
+
+                    <div class="risk-badge" id="riskBadge">
+                        <!-- Risk level will be populated by JavaScript -->
+                    </div>
+
+                    <div class="confidence-section">
+                        <p class="confidence-label">System Confidence</p>
+                        <div class="confidence-value" id="confidenceValue">--</div>
+                        <div class="confidence-bar">
+                            <div class="confidence-fill" id="confidenceFill"></div>
+                        </div>
+                    </div>
+
+                    <div class="recommendation-card" id="recommendationCard">
+                        <!-- Clinical recommendation will be populated -->
+                    </div>
+
+                    <div class="analysis-details" id="analysisDetails">
+                        <!-- Analysis details will be populated -->
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn-secondary" onclick="startNewAnalysis()">New Analysis</button>
+                        <button class="btn-primary" onclick="printReport()">Print Report</button>
+                    </div>
+
+                    <div class="results-disclaimer">
+                        <p><strong>Medical Disclaimer:</strong> This AI system is designed to assist healthcare professionals and should not replace clinical judgment. All results should be interpreted by qualified medical personnel. This tool is for research and clinical decision support purposes only.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
