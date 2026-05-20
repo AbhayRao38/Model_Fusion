@@ -16,8 +16,9 @@ services:
         value: https://darkxcrafter-mci-model-mri.hf.space
 
   # 2. Static HTML/JS Frontend
-  - type: static
+  - type: web
     name: mci-frontend
+    runtime: static
     repo: https://github.com/AbhayRao38/Model_Fusion.git
     buildCommand: ""
     publishPath: frontend
