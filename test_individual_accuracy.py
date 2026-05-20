@@ -31,13 +31,14 @@ def generate_mock_image(color='gray', size=(224, 224), format='PNG'):
     return buf
 
 def generate_mock_wav():
-    """Generate a minimal mock WAV stream"""
-    # Minimal 8kHz 8-bit mono WAV header + 1 second of silence
-    header = (
-        b"RIFF\x24\x00\x00\x00WAVEfmt \x10\x00\x00\x00\x01\x00\x01\x00"
-        b"\x22\x56\x00\x00\x22\x56\x00\x00\x01\x00\x08\x00data\x00\x00\x00\x00"
-    )
-    return io.BytesIO(header)
+    """Generate a valid mock WAV stream with 1 second of audio silence"""
+    import struct
+    num_samples = 8000
+    data = b'\x80' * num_samples
+    riff_header = b'RIFF' + struct.pack('<I', 36 + num_samples) + b'WAVE'
+    fmt_subchunk = b'fmt \x10\x00\x00\x00\x01\x00\x01\x00\x40\x1f\x00\x00\x40\x1f\x00\x00\x01\x00\x08\x00'
+    data_subchunk = b'data' + struct.pack('<I', num_samples) + data
+    return io.BytesIO(riff_header + fmt_subchunk + data_subchunk)
 
 def generate_mock_dicom(size=(128, 128)):
     """Generate a mock DICOM file stream if pydicom is available, else standard image"""
