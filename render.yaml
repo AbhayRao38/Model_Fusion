@@ -8,6 +8,8 @@ services:
     startCommand: "gunicorn -w 1 -b 0.0.0.0:$PORT main:app"
     plan: free
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.11
       - key: FACE_HOST
         value: https://darkxcrafter-mci-model-face.hf.space
       - key: EYE_HOST
